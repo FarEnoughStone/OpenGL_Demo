@@ -24,19 +24,16 @@ class TextureActivity : Activity() {
     class ColorGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
         init {
-            setEGLContextClientVersion(2)
+            setEGLContextClientVersion(3)
             setRenderer(ColorGLRenderer(context))
         }
     }
 
     class ColorGLRenderer(val context: Context) : GLSurfaceView.Renderer {
 
-        private var sampleTexture: SampleTexture? = null
-
         override fun onDrawFrame(gl: GL10?) {
             GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT)
-//            SampleTriangle().draw()
-            sampleTexture?.draw()
+            SampleTriangle().draw()
         }
 
         override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -46,7 +43,6 @@ class TextureActivity : Activity() {
 
         override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
             GLES30.glClearColor(255f, 255f, 255f, 0f)
-            sampleTexture = SampleTexture(context)
         }
 
     }

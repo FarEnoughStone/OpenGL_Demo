@@ -8,36 +8,53 @@ import java.nio.FloatBuffer
 class SampleTriangle {
     //顶点数量
     val COORDS_PER_VERTEX = 3
-    var triangleCoords = floatArrayOf(     // in counterclockwise order:
-            0.0f, 0.622008459f, 0.0f,      // top
-            -0.5f, -0.311004243f, 0.0f,    // bottom left
-            0.5f, -0.311004243f, 0.0f      // bottom right
+    val triangleCoords = floatArrayOf(     // in counterclockwise order:
+        0.0f, 0.622008459f, 0.0f,      // top
+        -0.5f, -0.311004243f, 0.0f,    // bottom left
+        0.5f, -0.311004243f, 0.0f      // bottom right
+    )
+
+    //世界坐标
+    val worldPosition = floatArrayOf(
+        0.2f, 0.2f, 0f, 1f
     )
     //将顶点放入buffer
     private var vertexBuffer: FloatBuffer =
-            ByteBuffer.allocateDirect(triangleCoords.size * 4).run {
-                order(ByteOrder.nativeOrder())
-                asFloatBuffer().apply {
-                    put(triangleCoords)
-                    position(0)
-                }
+        ByteBuffer.allocateDirect(triangleCoords.size * 4).run {
+            order(ByteOrder.nativeOrder())
+            asFloatBuffer().apply {
+                put(triangleCoords)
+                position(0)
             }
+        }
 
     var mProgram: Int = 0
 
     //顶点着色器程序 用于GPU运行
     private val vertexShaderCode =
-            "attribute vec4 vPosition;" +
-                    "void main() {" +
-                    "  gl_Position = vPosition;" +
-                    "}"
+        "attribute vec4 vPosition;" +
+                "void main() {" +
+                "  gl_Position = vPosition;" +
+                "}"
+
+    //顶点着色器程序 用于GPU运行
+    private val vertexShaderCode =
+        "attribute vec4 vPosition;" +
+        "uniform vec4 world_Position;" +
+                "void main() {" +
+                "  gl_Position = vec4(" +
+                "       vPosition.x * world_Position.w + world_Position.x," +
+                "       vPosition.y * world_Position.w + world_Position.y," +
+                "       vPosition.z * world_Position.w + world_Position.z," +
+                "       vPosition.w)" +
+                "}"
     //片段着色器程序 用于GPU运行
     private val fragmentShaderCode =
-            "precision mediump float;" +
-                    "uniform vec4 vColor;" +
-                    "void main() {" +
-                    "  gl_FragColor = vColor;" +
-                    "}"
+        "precision mediump float;" +
+                "uniform vec4 vColor;" +
+                "void main() {" +
+                "  gl_FragColor = vColor;" +
+                "}"
 
     //编译着色器程序
     fun loadShader(type: Int, shaderCode: String): Int {
@@ -90,12 +107,12 @@ class SampleTriangle {
 
             // 加载顶点数据
             GLES30.glVertexAttribPointer(
-                    it,
-                    COORDS_PER_VERTEX,
-                    GLES30.GL_FLOAT,
-                    false,
-                    COORDS_PER_VERTEX * 4,
-                    vertexBuffer
+                it,
+                COORDS_PER_VERTEX,
+                GLES30.GL_FLOAT,
+                false,
+                COORDS_PER_VERTEX * 4,
+                vertexBuffer
             )
 
 //            函数原型：
