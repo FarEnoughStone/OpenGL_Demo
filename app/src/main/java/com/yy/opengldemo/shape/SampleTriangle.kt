@@ -37,17 +37,17 @@ class SampleTriangle {
                 "  gl_Position = vPosition;" +
                 "}"
 
-    //顶点着色器程序 用于GPU运行
-    private val vertexShaderCode =
-        "attribute vec4 vPosition;" +
-        "uniform vec4 world_Position;" +
-                "void main() {" +
-                "  gl_Position = vec4(" +
-                "       vPosition.x * world_Position.w + world_Position.x," +
-                "       vPosition.y * world_Position.w + world_Position.y," +
-                "       vPosition.z * world_Position.w + world_Position.z," +
-                "       vPosition.w)" +
-                "}"
+    //顶点着色器程序 add world position
+//    private val vertexShaderCode =
+//        "attribute vec4 vPosition;" +
+//        "uniform vec4 world_Position;" +
+//                "void main() {" +
+//                "  gl_Position = vec4(" +
+//                "       vPosition.x * world_Position.w + world_Position.x," +
+//                "       vPosition.y * world_Position.w + world_Position.y," +
+//                "       vPosition.z * world_Position.w + world_Position.z," +
+//                "       vPosition.w)" +
+//                "}"
     //片段着色器程序 用于GPU运行
     private val fragmentShaderCode =
         "precision mediump float;" +

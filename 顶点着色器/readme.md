@@ -50,7 +50,7 @@ gl?.glFrustumf(-1f, 1f, -1f, 1f, -5f, 5f)
 * 屏幕空间
 相机所观察到的视图，映射到屏幕上
 
-*小问题：刚刚我们设置的坐标是什么空间的坐标？*
+*小问题：刚刚我们设置的坐标范围是什么空间的坐标范围？*
 
 ### 坐标变换*
 
@@ -84,7 +84,7 @@ void main() {
 ```
 这样，就把一个三角形放入了世界空间中（这里只设置了它的位置和大小，并没有设置其方向）
 
-在正常开发中，我们都试用矩阵进行计算：
+在正常开发中，我们都使用矩阵进行变换计算：
 ```
 //平移矩阵
 val translateMatrix  = floatArrayOf(
@@ -112,6 +112,112 @@ val scaleMatrix   = floatArrayOf(
 * z轴旋转矩阵
 ![t](./z轴旋转矩阵.webp)
 
+顶点坐标变换我们点到为止，更多的矩阵变换和相机视图让我们期待超键的《视图窗口操作》，这里我们需要知道的是顶点着色器可以进行顶点坐标变换。  
 
+### 着色器变量关联
 
-着色器变量关联
+上面我们知道了如何在顶点着色器中对坐标进行变换，那么我们如何将顶点数据赋值到对应的变量中呢？
+
+*以下以Android API 29下的opengl GLES30为例*  
+对顶点着色器的“vPosition”变量进行赋值：
+```
+        // 获取 mProgram 程序中 类型为attribute 的 "vPosition" 变量 （的指针）
+        // 注意：变量名须于自己编写的程序对应
+        positionHandle = GLES30.glGetAttribLocation(mProgram, "vPosition").also {
+
+            // 使能顶点数据 使GPU能够读取到顶点数据
+            GLES30.glEnableVertexAttribArray(it)
+
+            // 加载顶点数据
+            GLES30.glVertexAttribPointer(
+                it,
+                COORDS_PER_VERTEX,
+                GLES30.GL_FLOAT,
+                false,
+                COORDS_PER_VERTEX * 4,
+                vertexBuffer
+            )
+            // 绘制三角形
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, vertexCount)
+
+            // 去使能顶点数据
+            GLES30.glDisableVertexAttribArray(it)
+
+//            函数原型：
+//            void glVertexAttribPointer (int index, int size, int type, boolean normalized, int stride, Buffer ptr )
+//            参数含义：
+//            index  指定要修改的顶点着色器中顶点变量id；
+//            size   指定每个顶点属性的组件数量。必须为1、2、3或者4。如position是由3个（x,y,z）组成，而颜色是4个（r,g,b,a））；
+//            type   指定数组中每个组件的数据类型。可用的符号常量有GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT,GL_UNSIGNED_SHORT, GL_FIXED, 和 GL_FLOAT，初始值为GL_FLOAT；
+//            normalized  指定当被访问时，固定点数据值是否应该被归一化（GL_TRUE）或者直接转换为固定点值（GL_FALSE）；
+//            stride      指定连续顶点属性之间的偏移量。如果为0，那么顶点属性会被理解为：它们是紧密排列在一起的。初始值为0。如果normalized被设置为GL_TRUE，意味着整数型的值会被映射至区间[-1,1](有符号整数)，或者区间[0,1]（无符号整数），反之，这些值会被直接转换为浮点值而不进行归一化处理；
+//            ptr  顶点的缓冲数据。
+        }
+```
+
+对uniform 型变量“world_Position”进行赋值：
+```
+            // 获取 mProgram 程序中 类型为uniform 的 "world_Position" 变量 （的指针）
+            // 注意：变量名须于自己编写的程序对应
+            GLES30.glGetUniformLocation(mProgram, "world_Position").also {
+
+                GLES30.glUniform4fv(it, 1, worldPosition, 0)
+
+//                函数原型：
+//                void glUniform4fv(GLint location,  GLsizei count, const GLfloat *value );
+//                location：变量指针
+//                count：要修改的数量
+//                value：数组
+//                offset：数组偏移
+//                glUniform 修改类型为Uniform的变量；4 4个一组的属性；f 浮点型；v 指针型
+            }
+```
+
+**函数glUniform**
+
+* 注意：  
+由于OpenGL ES由C语言编写，但是C语言不支持函数的重载，所以会有很多名字相同后缀不同的函数版本存在。其中函数名中包含数字（1、2、3、4）表示接受这个数字个用于更改uniform变量的值，i表示32位整形，f表示32位浮点型，ub表示8位无符号byte，ui表示32位无符号整形，v表示接受相应的指针类型。
+
+函数原型：
+```
+void glUniform1f(GLint location,  GLfloat v0); 
+
+void glUniform2f(GLint location,  GLfloat v0,  GLfloat v1); 
+
+void glUniform1i(GLint location,  GLint v0); 
+
+void glUniform2i(GLint location,  GLint v0,  GLint v1); 
+
+void glUniform1fv ( GLint location, GLsizei count, const GLfloat *v );
+
+void glUniform2fv ( GLint location, GLsizei count, const GLfloat *v );
+
+void glUniform3fv ( GLint location, GLsizei count, const GLfloat *v );
+
+void glUniform4fv ( GLint location, GLsizei count, const GLfloat *v );
+//......
+```
+
+**函数glVertexAttribPointer与glVertexAttrib**
+```
+void glVertexAttribPointer ( GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLint offset ) 
+
+void glVertexAttribPointer ( GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *ptr )
+
+void glVertexAttrib4fv ( GLuint indx, const GLfloat *values )
+
+//......
+```
+
+**矩阵设置函数glUniformMatrix**
+在着色器中定义矩阵：
+```
+uniform mat4 uMVPMatrix;
+```
+赋值函数：
+```
+void glUniformMatrix4fv ( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value )
+//......
+```
+
+### END
