@@ -50,7 +50,7 @@ gl?.glFrustumf(-1f, 1f, -1f, 1f, -5f, 5f)
 * 屏幕空间
 相机所观察到的视图，映射到屏幕上
 
-*小问题：刚刚我们设置的坐标范围是什么空间的坐标范围？*
+*小问题1：刚刚我们设置的坐标范围是什么空间的坐标范围？*
 
 ### 坐标变换*
 
@@ -219,5 +219,13 @@ uniform mat4 uMVPMatrix;
 void glUniformMatrix4fv ( GLint location, GLsizei count, GLboolean transpose, const GLfloat *value )
 //......
 ```
+
+### 从硬件角度理解代码（课外）
+*小问题1：着色器的变量为何大都是浮点型？*
+*小问题3：可不可以把着色器中的计算放到代码中？*
+
+* 流处理器
+* 为何用显卡挖矿
+* [新闻：RTX 3090曝光：4992个流处理器 12GB GDDR6显存](https://3c.3dmgame.com/show-14-12191-1.html)
 
 ### END
