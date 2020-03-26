@@ -209,7 +209,7 @@ void glVertexAttrib4fv ( GLuint indx, const GLfloat *values )
 //......
 ```
 
-**矩阵设置函数glUniformMatrix**
+**矩阵设置函数glUniformMatrix**  
 在着色器中定义矩阵：
 ```
 uniform mat4 uMVPMatrix;
@@ -220,8 +220,8 @@ void glUniformMatrix4fv ( GLint location, GLsizei count, GLboolean transpose, co
 //......
 ```
 
-### 从硬件角度理解代码（课外）
-*小问题1：着色器的变量为何大都是浮点型？*
+### 从硬件角度理解代码（课外）  
+*小问题1：着色器的变量为何大都是浮点型？*  
 *小问题3：可不可以把着色器中的计算放到代码中？*
 
 * 流处理器
